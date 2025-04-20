@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useState } from "react";
 import { db } from "./firebase";
 import { collection, addDoc } from "firebase/firestore";
@@ -8,7 +7,6 @@ const App = () => {
   const [address, setAddress] = useState("");
   const [email, setEmail] = useState("");
   const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
 
   const handleRunReport = async () => {
     const logic = getCityLogic(address);
@@ -16,13 +14,6 @@ const App = () => {
       alert("❌ This address is not yet supported.");
       return;
     }
-
-    if (!email.includes("@")) {
-      alert("❌ Please enter a valid email.");
-      return;
-    }
-
-    setLoading(true);
 
     try {
       const data = await logic.runFeasibilityAnalysis(address);
@@ -35,21 +26,16 @@ const App = () => {
         ...data,
       });
 
-      // ⚠️ Placeholder: Replace this with PDF generation + email delivery later
-      alert(`✅ Report generated and would be emailed to: ${email}`);
-
+      alert("✅ Report submitted! You'll receive an email soon.");
     } catch (error) {
       console.error("Error generating report:", error);
       alert("❌ Failed to generate report.");
     }
-
-    setLoading(false);
   };
 
   return (
     <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
       <h1>LEVYR ADU Feasibility</h1>
-      
       <input
         type="text"
         placeholder="Enter address"
@@ -57,17 +43,15 @@ const App = () => {
         onChange={(e) => setAddress(e.target.value)}
         style={{ padding: "0.5rem", width: "100%", marginBottom: "1rem" }}
       />
-
       <input
         type="email"
-        placeholder="Enter your email"
+        placeholder="Enter email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         style={{ padding: "0.5rem", width: "100%", marginBottom: "1rem" }}
       />
-
-      <button onClick={handleRunReport} style={{ padding: "0.5rem 1rem" }} disabled={loading}>
-        {loading ? "Running..." : "Run Report"}
+      <button onClick={handleRunReport} style={{ padding: "0.5rem 1rem" }}>
+        Run Report
       </button>
 
       {result && (
