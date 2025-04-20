@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useState } from "react";
 import { db } from "./firebase";
 import { collection, addDoc } from "firebase/firestore";
@@ -5,9 +6,15 @@ import { getCityLogic } from "./cityLogic/cityRouter";
 
 const App = () => {
   const [address, setAddress] = useState("");
+  const [email, setEmail] = useState("");
   const [result, setResult] = useState(null);
 
   const handleRunReport = async () => {
+    if (!email.includes("@")) {
+      alert("❌ Please enter a valid email.");
+      return;
+    }
+
     const logic = getCityLogic(address);
     if (!logic) {
       alert("❌ This address is not yet supported.");
@@ -19,6 +26,7 @@ const App = () => {
       setResult(data);
       await addDoc(collection(db, "reports"), {
         address,
+        email,
         timestamp: new Date().toISOString(),
         ...data,
       });
@@ -32,6 +40,7 @@ const App = () => {
   return (
     <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
       <h1>LEVYR ADU Feasibility</h1>
+
       <input
         type="text"
         placeholder="Enter address"
@@ -39,6 +48,15 @@ const App = () => {
         onChange={(e) => setAddress(e.target.value)}
         style={{ padding: "0.5rem", width: "100%", marginBottom: "1rem" }}
       />
+
+      <input
+        type="email"
+        placeholder="Enter your email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        style={{ padding: "0.5rem", width: "100%", marginBottom: "1rem" }}
+      />
+
       <button onClick={handleRunReport} style={{ padding: "0.5rem 1rem" }}>
         Run Report
       </button>
