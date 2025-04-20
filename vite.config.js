@@ -4,8 +4,6 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  root: '.', // This is usually fine, adjust if needed
-  publicDir: 'public', // Explicitly tell Vite where the static assets are
   build: {
     outDir: 'dist'
   }
