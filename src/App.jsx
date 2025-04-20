@@ -8,39 +8,48 @@ const App = () => {
   const [address, setAddress] = useState("");
   const [email, setEmail] = useState("");
   const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleRunReport = async () => {
-    if (!email.includes("@")) {
-      alert("❌ Please enter a valid email.");
-      return;
-    }
-
     const logic = getCityLogic(address);
     if (!logic) {
       alert("❌ This address is not yet supported.");
       return;
     }
 
+    if (!email.includes("@")) {
+      alert("❌ Please enter a valid email.");
+      return;
+    }
+
+    setLoading(true);
+
     try {
       const data = await logic.runFeasibilityAnalysis(address);
       setResult(data);
+
       await addDoc(collection(db, "reports"), {
         address,
         email,
         timestamp: new Date().toISOString(),
         ...data,
       });
-      alert("✅ Report submitted to Firestore!");
+
+      // ⚠️ Placeholder: Replace this with PDF generation + email delivery later
+      alert(`✅ Report generated and would be emailed to: ${email}`);
+
     } catch (error) {
       console.error("Error generating report:", error);
       alert("❌ Failed to generate report.");
     }
+
+    setLoading(false);
   };
 
   return (
     <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
       <h1>LEVYR ADU Feasibility</h1>
-
+      
       <input
         type="text"
         placeholder="Enter address"
@@ -57,8 +66,8 @@ const App = () => {
         style={{ padding: "0.5rem", width: "100%", marginBottom: "1rem" }}
       />
 
-      <button onClick={handleRunReport} style={{ padding: "0.5rem 1rem" }}>
-        Run Report
+      <button onClick={handleRunReport} style={{ padding: "0.5rem 1rem" }} disabled={loading}>
+        {loading ? "Running..." : "Run Report"}
       </button>
 
       {result && (
