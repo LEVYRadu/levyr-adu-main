@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { db } from "./firebase";
 import { collection, addDoc } from "firebase/firestore";
-import cityRouter from "./cityLogic/cityRouter";
+import { getCityLogic } from "./cityLogic/cityRouter";
+
 
 const App = () => {
   const [address, setAddress] = useState("");
