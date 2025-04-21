@@ -1,8 +1,9 @@
 // src/HomeownerForm.jsx
+
 import React, { useState } from "react";
 import { db } from "./firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import cityRouter from "./cityLogic/cityRouter";
+import { getCityLogic } from "./cityLogic/cityRouter"; // Import the cityRouter function
 
 export default function HomeownerForm() {
   const [address, setAddress] = useState("");
@@ -16,22 +17,24 @@ export default function HomeownerForm() {
     setErrorMessage("");
 
     try {
-      const city = cityRouter(address);
-      if (!city) {
+      const cityLogicFunction = getCityLogic(address); // Get the city-specific logic function
+
+      if (!cityLogicFunction) {
         setStatus("error");
         setErrorMessage("Sorry, this city is not supported yet.");
         return;
       }
 
-      const logic = await city(address);
-      const reportData = {
+      const reportData = cityLogicFunction(address); // Call the logic function to get the report data
+
+      const firestoreData = {
         address,
         email,
-        result: logic,
+        result: reportData,
         createdAt: serverTimestamp(),
       };
 
-      await addDoc(collection(db, "homeownerReports"), reportData);
+      await addDoc(collection(db, "homeownerReports"), firestoreData); // Save to Firestore
       setStatus("success");
     } catch (error) {
       console.error("Error submitting form:", error);

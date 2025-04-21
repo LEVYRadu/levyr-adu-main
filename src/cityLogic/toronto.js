@@ -1,49 +1,21 @@
 // src/cityLogic/toronto.js
 
+// Example function that checks if the address is in Toronto
+// More complex logic might be here
+
 export const isAddressInToronto = (address) => {
-  return (
-    address.toLowerCase().includes("toronto") ||
-    address.toLowerCase().includes("etobicoke") ||
-    address.toLowerCase().includes("scarborough") ||
-    address.toLowerCase().includes("north york") ||
-    address.toLowerCase().includes("east york") ||
-    address.toLowerCase().includes("york, on")
-  );
+  // Add your specific check for Toronto. This might involve regex, geolocation, etc.
+  return address.toLowerCase().includes("toronto");
 };
 
-export const getZoningRulesForToronto = (zoningCode) => {
-  const rules = {
-    RD: { aduAllowed: true, maxSize: 645 }, // ~645 sqft
-    R: { aduAllowed: true, maxSize: 645 },
-    RM: { aduAllowed: true, maxSize: 645 },
-    RA: { aduAllowed: false, maxSize: 0 },
-    default: { aduAllowed: false, maxSize: 0 },
-  };
-
-  return rules[zoningCode] || rules.default;
-};
-
-// 🔍 Simulated data fetchers
-const simulateZoningLookup = async (address) => {
-  if (address.toLowerCase().includes("dundas")) return "RD";
-  if (address.toLowerCase().includes("queen st")) return "R";
-  return "default";
-};
-
-const simulateUtilitiesLookup = async () => {
-  return "Likely Available";
-};
-
-// 🧠 Main Toronto Logic
-export const runFeasibilityAnalysis = async (address) => {
-  const zoningCode = await simulateZoningLookup(address);
-  const rules = getZoningRulesForToronto(zoningCode);
-  const utilities = await simulateUtilitiesLookup();
-
+// Additional logic for Toronto's feasibility report
+export const getTorontoReportLogic = (address) => {
+  // Your logic to gather data for Toronto's feasibility report
   return {
-    zoning: zoningCode,
-    utilities,
-    allowed: rules.aduAllowed,
-    maxSize: rules.maxSize,
+    city: "Toronto",
+    eligible: isAddressInToronto(address),  // Example check
+    zoning: "Residential", // Example
+    utilities: "Available", // Example
+    // Add more details as needed
   };
 };
