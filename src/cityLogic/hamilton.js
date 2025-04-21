@@ -1,21 +1,20 @@
 // src/cityLogic/hamilton.js
 
-// Example function that checks if the address is in Hamilton
-// You might use more advanced logic here depending on your needs
+import zoningLogic from "./hamilton/zoningLogic.js";
 
-export const isAddressInHamilton = (address) => {
-  // Add the specific check for Hamilton. This might involve regex, geolocation, etc.
-  return address.toLowerCase().includes("hamilton");
-};
-
-// Additional logic related to Hamilton, e.g., zoning, utilities, etc.
-export const getHamiltonReportLogic = (address) => {
-  // Your logic to gather data for Hamilton's feasibility report
-  return {
-    city: "Hamilton",
-    eligible: isAddressInHamilton(address),  // Example check
-    zoning: "Residential", // Example
-    utilities: "Available", // Example
-    // Add more details as needed
+export default async function hamilton(address) {
+  // TEMP: Hardcoded coordinates for 71 Main St W, Hamilton
+  const coordinates = {
+    lat: 43.2565,
+    lng: -79.8729,
   };
-};
+
+  const zoningResult = await zoningLogic(coordinates);
+
+  return {
+    zoning: zoningResult.zoneCode,
+    aduAllowed: zoningResult.isADUPermitted,
+    utilities: "Likely Available", // Temporary placeholder
+    zoningNotes: zoningResult.notes,
+  };
+}
