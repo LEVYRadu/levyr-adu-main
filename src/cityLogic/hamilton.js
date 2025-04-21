@@ -1,7 +1,6 @@
-// src/cityLogic/hamilton.js
+import zoningLogic from './zoningLogic';
 
-import zoningLogic from "./hamilton/zoningLogic.js";
-
+// Hamilton specific ADU feasibility logic
 export default async function hamilton(address) {
   // TEMP: Hardcoded coordinates for 71 Main St W, Hamilton
   const coordinates = {
@@ -14,7 +13,7 @@ export default async function hamilton(address) {
   return {
     zoning: zoningResult.zoneCode,
     aduAllowed: zoningResult.isADUPermitted,
-    utilities: "Likely Available", // Temporary placeholder
+    utilities: 'Likely Available', // Temporary placeholder
     zoningNotes: zoningResult.notes,
   };
 }

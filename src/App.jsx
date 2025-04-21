@@ -1,103 +1,70 @@
-import React, { useState } from "react";
-import { db } from "./firebase";
-import { collection, addDoc } from "firebase/firestore";
-import { getCityLogic } from "./cityLogic/cityRouter"; // Correct import for city logic
+import React, { useState } from 'react';
+import { cityRouter } from './cityLogic/cityRouter';
+import firebase from './firebase';
+import './App.css';
 
-const App = () => {
-  const [address, setAddress] = useState("");
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [reportData, setReportData] = useState(null); // New state to store report data
+export default function App() {
+  const [address, setAddress] = useState('');
+  const [report, setReport] = useState(null);
+  const [error, setError] = useState('');
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!address || !email) {
-      setError("Please provide both address and email.");
-      return;
-    }
+  const handleAddressChange = (e) => {
+    setAddress(e.target.value);
+  };
 
-    setLoading(true);
-    setError(null);
-
+  const generateReport = async () => {
     try {
-      // Determine which city to run logic on
-      const cityLogicFunction = getCityLogic(address); // Use the correct function to get the city logic
-      if (!cityLogicFunction) {
-        setError("Sorry, this city is not supported yet.");
+      setError('');
+      const cityHandler = cityRouter(address);
+      
+      if (!cityHandler) {
+        setError('City not supported.');
         return;
       }
 
-      // Fetch logic for the address (this will be specific to the city)
-      const logic = await cityLogicFunction(address); // Get the city logic for the given address
-      console.log("City logic result:", logic); // Log the result for debugging
-
-      const report = {
+      const result = await cityHandler(address);
+      const reportData = {
         address,
-        email,
-        zoning: logic.zoning || "default", // Assuming result from city logic
-        utilities: logic.utilities || "Likely Available", // Assuming result from city logic
-        aduAllowed: logic.aduAllowed || false, // Assuming result from city logic
-        createdAt: new Date(),
+        zoning: result.zoning,
+        aduAllowed: result.aduAllowed,
+        utilities: result.utilities,
+        zoningNotes: result.zoningNotes,
       };
+      
+      setReport(reportData);
 
-      // Save to Firestore
-      await addDoc(collection(db, "homeownerReports"), report);
-
-      // Save report data to state for rendering
-      setReportData(report);
-
-      // Reset form fields
-      setAddress("");
-      setEmail("");
-    } catch (error) {
-      console.error("Error generating report:", error); // Log the error for debugging
-      setError("Failed to generate report. Please try again.");
-    } finally {
-      setLoading(false);
+      // Save report to Firebase
+      await firebase.firestore().collection('reports').add(reportData);
+      
+      console.log('Report saved to Firebase');
+    } catch (err) {
+      console.error('Error generating report:', err);
+      setError('Failed to generate report');
     }
   };
 
   return (
-    <div>
-      <h1>LEVYR ADU Feasibility Report for Homeowners</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Address</label>
-          <input
-            type="text"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        <button type="submit" disabled={loading}>
-          {loading ? "Generating..." : "Generate Report"}
-        </button>
-      </form>
-
-      {reportData && (
-        <div className="mt-6 border p-4 rounded bg-gray-100">
-          <h2 className="text-xl font-semibold mb-2">Feasibility Summary</h2>
-          <p><strong>Address:</strong> {reportData.address}</p>
-          <p><strong>Zoning:</strong> {reportData.zoning}</p>
-          <p><strong>Utilities:</strong> {reportData.utilities}</p>
-          <p><strong>ADU Allowed:</strong> {reportData.aduAllowed ? "Yes" : "No"}</p>
+    <div className="App">
+      <h1>LEVYR ADU Report Generator</h1>
+      <input
+        type="text"
+        value={address}
+        onChange={handleAddressChange}
+        placeholder="Enter property address"
+      />
+      <button onClick={generateReport}>Generate Report</button>
+      
+      {error && <p className="error">{error}</p>}
+      
+      {report && (
+        <div className="report">
+          <h2>Report for: {report.address}</h2>
+          <p><strong>Zoning:</strong> {report.zoning}</p>
+          <p><strong>ADU Allowed:</strong> {report.aduAllowed ? 'Yes' : 'No'}</p>
+          <p><strong>Utilities:</strong> {report.utilities}</p>
+          <p><strong>Zoning Notes:</strong> {report.zoningNotes}</p>
         </div>
       )}
     </div>
   );
-};
-
-export default App;
+}
