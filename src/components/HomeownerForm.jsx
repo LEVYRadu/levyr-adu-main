@@ -1,91 +1,90 @@
-import React, { useState } from 'react';
-import { db } from '../firebase';
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
+// src/HomeownerForm.jsx
+import React, { useState } from "react";
+import { db } from "./firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import cityRouter from "./cityLogic/cityRouter";
 
-const HomeownerForm = () => {
-  const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
-  const [error, setError] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const checkIfSupportedCity = (address) => {
-    return address.toLowerCase().includes('hamilton');
-  };
+export default function HomeownerForm() {
+  const [address, setAddress] = useState("");
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("idle"); // idle | loading | success | error
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    if (!checkIfSupportedCity(address)) {
-      setError('Sorry! We’re not available in that city yet.');
-      setLoading(false);
-      return;
-    }
+    setStatus("loading");
+    setErrorMessage("");
 
     try {
-      await addDoc(collection(db, 'homeownerReports'), {
-        email,
-        address,
-        createdAt: Timestamp.now(),
-      });
-      setSubmitted(true);
-    } catch (err) {
-      console.error('Error saving to Firestore:', err);
-      setError('There was an error. Please try again.');
-    }
+      const city = cityRouter(address);
+      if (!city) {
+        setStatus("error");
+        setErrorMessage("Sorry, this city is not supported yet.");
+        return;
+      }
 
-    setLoading(false);
+      const logic = await city(address);
+      const reportData = {
+        address,
+        email,
+        result: logic,
+        createdAt: serverTimestamp(),
+      };
+
+      await addDoc(collection(db, "homeownerReports"), reportData);
+      setStatus("success");
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setErrorMessage("Something went wrong. Please try again.");
+      setStatus("error");
+    }
   };
 
-  if (submitted) {
-    return (
-      <div className="p-6 text-center">
-        <h2 className="text-xl font-bold">Thanks! 🎉</h2>
-        <p>You’ll receive your ADU report by email shortly.</p>
-      </div>
-    );
-  }
-
   return (
-    <form onSubmit={handleSubmit} className="p-6 max-w-md mx-auto space-y-4 bg-white rounded-xl shadow">
-      <h2 className="text-2xl font-bold text-center">Get Your ADU Report</h2>
+    <div className="max-w-xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-lg">
+      <h1 className="text-2xl font-bold mb-4">Get Your ADU Feasibility Report</h1>
 
-      <div>
-        <label className="block font-medium">Email Address</label>
-        <input
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border rounded"
-        />
-      </div>
+      {status === "success" ? (
+        <div className="text-green-600 font-medium">
+          ✅ Report submitted successfully! Check your email shortly.
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium">Property Address</label>
+            <input
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              required
+              className="w-full mt-1 p-2 border border-gray-300 rounded"
+            />
+          </div>
 
-      <div>
-        <label className="block font-medium">Property Address</label>
-        <input
-          type="text"
-          required
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          placeholder="123 Main St, Hamilton"
-          className="w-full p-2 border rounded"
-        />
-      </div>
+          <div>
+            <label className="block text-sm font-medium">Email Address</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full mt-1 p-2 border border-gray-300 rounded"
+            />
+          </div>
 
-      {error && <p className="text-red-500">{error}</p>}
+          <button
+            type="submit"
+            disabled={status === "loading"}
+            className="w-full py-2 px-4 bg-black text-white rounded hover:bg-gray-800"
+          >
+            {status === "loading" ? "Submitting..." : "Generate Report"}
+          </button>
 
-      <button
-        type="submit"
-        className="w-full bg-black text-white py-2 rounded hover:bg-gray-800"
-        disabled={loading}
-      >
-        {loading ? 'Submitting...' : 'Get My ADU Report'}
-      </button>
-    </form>
+          {status === "error" && (
+            <p className="text-red-600 font-medium">{errorMessage}</p>
+          )}
+        </form>
+      )}
+    </div>
   );
-};
-
-export default HomeownerForm;
+}
