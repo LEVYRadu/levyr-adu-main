@@ -1,16 +1,14 @@
 // src/cityLogic/cityRouter.js
 
-import * as hamilton from "./hamilton.js";
-import * as toronto from "./toronto.js";
+import hamilton from "./hamilton";
+import toronto from "./toronto";
 
-// This function determines which city's logic to use based on the address
-export const getCityLogic = (address) => {
-  if (hamilton.isAddressInHamilton(address)) {
-    return hamilton.getHamiltonReportLogic;  // Returns the specific Hamilton report logic
-  }
-  if (toronto.isAddressInToronto(address)) {
-    return toronto.getTorontoReportLogic;  // Returns the specific Toronto report logic
-  }
+// Simple keyword matcher for now
+export function cityRouter(address) {
+  const lower = address.toLowerCase();
 
-  return null; // Returns null if no match
-};
+  if (lower.includes("hamilton")) return hamilton;
+  if (lower.includes("toronto")) return toronto;
+
+  return null; // not supported
+}
