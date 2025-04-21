@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { db } from "./firebase";
 import { collection, addDoc } from "firebase/firestore";
-import { getCityLogic } from "./cityLogic/cityRouter";
-
+import { getCityLogic } from "./cityLogic/cityRouter"; // Correct import for city logic
 
 const App = () => {
   const [address, setAddress] = useState("");
@@ -24,14 +23,16 @@ const App = () => {
 
     try {
       // Determine which city to run logic on
-      const city = cityRouter(address);
-      if (!city) {
+      const cityLogicFunction = getCityLogic(address); // Use the correct function to get the city logic
+      if (!cityLogicFunction) {
         setError("Sorry, this city is not supported yet.");
         return;
       }
 
       // Fetch logic for the address (this will be specific to the city)
-      const logic = await city(address);
+      const logic = await cityLogicFunction(address); // Get the city logic for the given address
+      console.log("City logic result:", logic); // Log the result for debugging
+
       const report = {
         address,
         email,
@@ -51,6 +52,7 @@ const App = () => {
       setAddress("");
       setEmail("");
     } catch (error) {
+      console.error("Error generating report:", error); // Log the error for debugging
       setError("Failed to generate report. Please try again.");
     } finally {
       setLoading(false);
