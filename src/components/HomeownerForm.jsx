@@ -7,7 +7,7 @@ const HomeownerForm = () => {
   const [address, setAddress] = useState('');
   const [error, setError] = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
 
   const checkIfSupportedCity = (address) => {
     return address.toLowerCase().includes('hamilton');
@@ -16,16 +16,16 @@ const HomeownerForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true); // Set loading to true when submitting
+    setLoading(true);
 
     if (!checkIfSupportedCity(address)) {
       setError('Sorry! We’re not available in that city yet.');
-      setLoading(false); // Reset loading if error occurs
+      setLoading(false);
       return;
     }
 
     try {
-      await addDoc(collection(db, 'submissions'), {
+      await addDoc(collection(db, 'homeownerReports'), {
         email,
         address,
         createdAt: Timestamp.now(),
@@ -34,9 +34,9 @@ const HomeownerForm = () => {
     } catch (err) {
       console.error('Error saving to Firestore:', err);
       setError('There was an error. Please try again.');
-    } finally {
-      setLoading(false); // Reset loading after submission attempt
     }
+
+    setLoading(false);
   };
 
   if (submitted) {
@@ -80,9 +80,9 @@ const HomeownerForm = () => {
       <button
         type="submit"
         className="w-full bg-black text-white py-2 rounded hover:bg-gray-800"
-        disabled={loading} // Disable the button while loading
+        disabled={loading}
       >
-        {loading ? 'Generating Report...' : 'Get My ADU Report'}
+        {loading ? 'Submitting...' : 'Get My ADU Report'}
       </button>
     </form>
   );
