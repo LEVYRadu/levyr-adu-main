@@ -1,4 +1,6 @@
-// Hardcoded zoning rules for testing
+// src/cityLogic/hamilton/zoningLogic.js
+
+// Real zoning rules for ADU logic
 const zoningRules = {
   "C": { aduPermitted: true, notes: ["Commercial zone, ADU permitted above or behind existing structure."] },
   "D": { aduPermitted: true, notes: ["Downtown zone, ADU permitted under SDU by-law."] },
@@ -11,25 +13,37 @@ const zoningRules = {
   "M": { aduPermitted: true, notes: ["Mixed-use zone, ADU permitted above commercial."] },
 };
 
-// Function to interpret the zone code and determine if ADU is permitted
+// Interpret zoning code like "E-3" → "E"
 function interpretZoningCode(code) {
   if (!code) return { isADUPermitted: false, notes: ["No zoning data available."] };
-
-  const baseCode = code.split("-")[0].trim(); // Handle variants like "E-3" or "D/S-36"
+  const baseCode = code.split("-")[0].trim();
   return zoningRules[baseCode] || { isADUPermitted: false, notes: [`Unknown zone code: ${code}`] };
 }
 
-// Replace the API call with hardcoded zone code (for testing)
-export default async function zoningLogic(coordinates) {
-  // For testing, we use a hardcoded zone code like "C"
-  const simulatedZoneCode = "C"; // Example, use any zone code for testing
+// Query Hamilton GIS zoning layer
+async function fetchZoningFromHamilton(coordinates) {
+  const { lat, lng } = coordinates;
+  const url = `https://map.hamilton.ca/arcgis/rest/services/OpenData/Zoning/MapServer/0/query?f=json&geometry=${lng},${lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=ZONE`;
 
-  // Get zoning details based on the simulated zone code
-  const rule = interpretZoningCode(simulatedZoneCode);
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    const zoneCode = data.features?.[0]?.attributes?.ZONE || null;
+    return zoneCode;
+  } catch (error) {
+    console.error("Failed to fetch zoning from Hamilton GIS:", error);
+    return null;
+  }
+}
+
+// Main function to export
+export default async function zoningLogic(coordinates) {
+  const zoneCode = await fetchZoningFromHamilton(coordinates);
+  const rule = interpretZoningCode(zoneCode);
 
   return {
     isADUPermitted: rule.aduPermitted,
-    zoneCode: simulatedZoneCode,
+    zoneCode: zoneCode || "Unknown",
     notes: rule.notes,
   };
 }
