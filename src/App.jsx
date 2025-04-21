@@ -1,13 +1,14 @@
-// src/App.jsx
 import React, { useState } from "react";
-import { db } from "./firebase"; // Firebase setup
-import { collection, addDoc } from "firebase/firestore"; // Firestore for saving the form
+import { db } from "./firebase";
+import { collection, addDoc } from "firebase/firestore";
+import cityRouter from "./cityLogic/cityRouter";
 
 const App = () => {
   const [address, setAddress] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [reportData, setReportData] = useState(null); // New state to store report data
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -21,20 +22,33 @@ const App = () => {
     setError(null);
 
     try {
-      // Save the homeowner's address and email to Firestore
-      await addDoc(collection(db, "homeownerReports"), {
+      // Determine which city to run logic on
+      const city = cityRouter(address);
+      if (!city) {
+        setError("Sorry, this city is not supported yet.");
+        return;
+      }
+
+      // Fetch logic for the address (this will be specific to the city)
+      const logic = await city(address);
+      const report = {
         address,
         email,
+        zoning: logic.zoning || "default", // Assuming result from city logic
+        utilities: logic.utilities || "Likely Available", // Assuming result from city logic
+        aduAllowed: logic.aduAllowed || false, // Assuming result from city logic
         createdAt: new Date(),
-      });
+      };
 
-      // Here, you can generate the report based on the address (we'll keep it simple for now)
-      // Once the report is generated, we can email it (for now, simulate this step)
-      console.log("Report generated for:", address, "Email sent to:", email);
-      // After report generation, reset form fields
+      // Save to Firestore
+      await addDoc(collection(db, "homeownerReports"), report);
+
+      // Save report data to state for rendering
+      setReportData(report);
+
+      // Reset form fields
       setAddress("");
       setEmail("");
-      alert("Report has been generated and sent to your email!");
     } catch (error) {
       setError("Failed to generate report. Please try again.");
     } finally {
@@ -44,7 +58,7 @@ const App = () => {
 
   return (
     <div>
-      <h1>ADU Feasibility Report for Homeowners</h1>
+      <h1>LEVYR ADU Feasibility Report for Homeowners</h1>
       <form onSubmit={handleSubmit}>
         <div>
           <label>Address</label>
@@ -69,6 +83,16 @@ const App = () => {
           {loading ? "Generating..." : "Generate Report"}
         </button>
       </form>
+
+      {reportData && (
+        <div className="mt-6 border p-4 rounded bg-gray-100">
+          <h2 className="text-xl font-semibold mb-2">Feasibility Summary</h2>
+          <p><strong>Address:</strong> {reportData.address}</p>
+          <p><strong>Zoning:</strong> {reportData.zoning}</p>
+          <p><strong>Utilities:</strong> {reportData.utilities}</p>
+          <p><strong>ADU Allowed:</strong> {reportData.aduAllowed ? "Yes" : "No"}</p>
+        </div>
+      )}
     </div>
   );
 };
