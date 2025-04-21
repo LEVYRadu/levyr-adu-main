@@ -1,21 +1,19 @@
-// src/cityLogic/toronto.js
+import zoningLogic from "./toronto/zoningLogic.js";
 
-// Example function that checks if the address is in Toronto
-// More complex logic might be here
-
-export const isAddressInToronto = (address) => {
-  // Add your specific check for Toronto. This might involve regex, geolocation, etc.
-  return address.toLowerCase().includes("toronto");
-};
-
-// Additional logic for Toronto's feasibility report
-export const getTorontoReportLogic = (address) => {
-  // Your logic to gather data for Toronto's feasibility report
-  return {
-    city: "Toronto",
-    eligible: isAddressInToronto(address),  // Example check
-    zoning: "Residential", // Example
-    utilities: "Available", // Example
-    // Add more details as needed
+// Toronto specific ADU feasibility logic
+export default async function toronto(address) {
+  // TEMP: Hardcoded coordinates for 100 Queen St W, Toronto
+  const coordinates = {
+    lat: 43.6532,
+    lng: -79.3832,
   };
-};
+
+  const zoningResult = await zoningLogic(coordinates);
+
+  return {
+    zoning: zoningResult.zoneCode,
+    aduAllowed: zoningResult.isADUPermitted,
+    utilities: 'Likely Available', // Temporary placeholder
+    zoningNotes: zoningResult.notes,
+  };
+}
