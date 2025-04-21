@@ -34,23 +34,27 @@ exports.sendEmailReport = functions.https.onCall(async (data, context) => {
 
 // Firebase function to fetch building data from OSM using Overpass API
 exports.fetchBuildingData = functions.https.onCall(async (data, context) => {
-  const { lat, lng } = data;  // Coordinates for the building search
+  const { lat, lng } = data;
 
   const query = `
     [out:json];
     (
-      way["building"](around:1000, ${lat}, ${lng}); // Get buildings within 1km radius
+      way["building"](around:1000, ${lat}, ${lng});
       node["building"](around:1000, ${lat}, ${lng});
+      way["building:part"](around:1000, ${lat}, ${lng});
+      node["building:part"](around:1000, ${lat}, ${lng});
     );
     out body;
   `;
 
   try {
-    // Query Overpass API for building data
-    const response = await axios.post('https://overpass-api.de/api/interpreter', query);
-    const buildingData = response.data;
+    const response = await axios.post(
+      'https://overpass-api.de/api/interpreter',
+      query,
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    );
 
-    // Return the building data
+    const buildingData = response.data;
     return { buildings: buildingData.elements };
   } catch (error) {
     console.error('Error fetching data from Overpass API:', error);
