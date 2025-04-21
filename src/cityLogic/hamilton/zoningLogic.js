@@ -1,8 +1,4 @@
-// cityLogic/hamilton/zoningLogic.js
-
-import axios from "axios";
-
-// Map zoning codes to simplified ADU logic based on parsed PDFs
+// Hardcoded zoning rules for testing
 const zoningRules = {
   "C": { aduPermitted: true, notes: ["Commercial zone, ADU permitted above or behind existing structure."] },
   "D": { aduPermitted: true, notes: ["Downtown zone, ADU permitted under SDU by-law."] },
@@ -13,9 +9,9 @@ const zoningRules = {
   "H": { aduPermitted: false, notes: ["Industrial, ADU not permitted."] },
   "P": { aduPermitted: false, notes: ["Planned development, case-by-case."] },
   "M": { aduPermitted: true, notes: ["Mixed-use zone, ADU permitted above commercial."] },
-  // Add more as needed based on PDFs
 };
 
+// Function to interpret the zone code and determine if ADU is permitted
 function interpretZoningCode(code) {
   if (!code) return { isADUPermitted: false, notes: ["No zoning data available."] };
 
@@ -23,32 +19,17 @@ function interpretZoningCode(code) {
   return zoningRules[baseCode] || { isADUPermitted: false, notes: [`Unknown zone code: ${code}`] };
 }
 
+// Replace the API call with hardcoded zone code (for testing)
 export default async function zoningLogic(coordinates) {
-  try {
-    const { lat, lon } = coordinates;
-    const url = `https://services.arcgis.com/rYz782eMbySr2srL/arcgis/rest/services/Zoning_By_law_Boundary/FeatureServer/1/query?geometry=${lon},${lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=ZONE_CODE&returnGeometry=false&f=json`;
+  // For testing, we use a hardcoded zone code like "C"
+  const simulatedZoneCode = "C"; // Example, use any zone code for testing
 
-    const response = await axios.get(url);
-    const features = response.data.features;
+  // Get zoning details based on the simulated zone code
+  const rule = interpretZoningCode(simulatedZoneCode);
 
-    if (!features.length) {
-      return { isADUPermitted: false, zoneCode: null, notes: ["Property not in known zoning map."] };
-    }
-
-    const zoneCode = features[0].attributes.ZONE_CODE;
-    const rule = interpretZoningCode(zoneCode);
-
-    return {
-      isADUPermitted: rule.aduPermitted,
-      zoneCode,
-      notes: rule.notes,
-    };
-  } catch (error) {
-    console.error("Zoning fetch error:", error);
-    return {
-      isADUPermitted: false,
-      zoneCode: null,
-      notes: ["Error retrieving zoning info."],
-    };
-  }
+  return {
+    isADUPermitted: rule.aduPermitted,
+    zoneCode: simulatedZoneCode,
+    notes: rule.notes,
+  };
 }
