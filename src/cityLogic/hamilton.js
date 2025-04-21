@@ -1,4 +1,5 @@
-import zoningLogic from './zoningLogic';
+import zoningLogic from "./hamilton/zoningLogic.js";
+
 
 // Hamilton specific ADU feasibility logic
 export default async function hamilton(address) {
