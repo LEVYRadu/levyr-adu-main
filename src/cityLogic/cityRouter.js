@@ -1,28 +1,21 @@
-// Import the city validation function
-import validateCity from '../utils/validateCity';
-// Import the city-specific logic files
 import hamilton from './hamilton';
 import toronto from './toronto';
 
-// The cityRouter function checks the city and returns the corresponding logic
-const cityRouter = (city) => {
-  // Normalize city name to proper case
-  const normalizedCity = city.charAt(0).toUpperCase() + city.slice(1).toLowerCase();
+// Log to verify
+console.log(hamilton);
+console.log(toronto);
 
-  // Validate if the city is supported
-  if (!validateCity(normalizedCity)) {
-    return { error: 'City not supported' };  // Return an error message if unsupported
+const cityRouter = (city) => {
+  if (!validateCity(city)) {
+    return { error: 'City not supported' };
   }
 
-  // Return the specific city logic based on the city name
-  switch (normalizedCity) {
+  switch (city) {
     case 'Hamilton':
-      return hamilton;  // Return Hamilton's logic
+      return hamilton; 
     case 'Toronto':
-      return toronto;   // Return Toronto's logic
+      return toronto;
     default:
-      return { error: 'City not supported' };  // Default error for unsupported cities
+      return { error: 'City not supported' };
   }
 };
-
-export default cityRouter;
