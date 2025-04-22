@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@turf/turf": "^7.2.0",
     "axios": "^1.8.4",
     "firebase": "^10.7.1",
     "firebase-functions": "^6.3.2",
