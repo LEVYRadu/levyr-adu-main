@@ -9,7 +9,7 @@ export default defineConfig({
     outDir: 'dist', // Output directory for build
     rollupOptions: {
       input: './index.html', // Explicitly specify the path to the root index.html
-      external: ['@turf/turf'], // Add @turf/turf as an external dependency
+      // Don't mark @turf/turf as external
     }
   }
 })
