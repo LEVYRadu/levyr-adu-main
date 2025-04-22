@@ -1,5 +1,5 @@
 // Ontario-wide shared logic
-import turf from "@turf/turf"; // assuming you add this to project later
+import * as turf from "@turf/turf"; // Import all turf functions
 
 // Fetch and cache the datasets once
 let greenbeltFeatures = null;
