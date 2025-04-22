@@ -8,6 +8,8 @@ export default function App() {
   const [email, setEmail] = useState(''); // ✅ New email state
   const [report, setReport] = useState(null);
   const [error, setError] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);  // New state for success
+  const [isError, setIsError] = useState(false);  // New state for error
 
   const handleAddressChange = (e) => {
     setAddress(e.target.value);
@@ -20,9 +22,13 @@ export default function App() {
   const generateReport = async () => {
     try {
       setError('');
+      setIsSuccess(false);
+      setIsError(false);
+
       const cityHandler = cityRouter(address);
 
       if (!cityHandler) {
+        setIsError(true); // City is unsupported
         setError('City not supported.');
         return;
       }
@@ -39,6 +45,7 @@ export default function App() {
       };
 
       setReport(reportData);
+      setIsSuccess(true);  // Set success to true when report is generated
 
       // ✅ Save to Firestore using modular SDK
       await addDoc(collection(db, 'reports'), reportData);
@@ -46,6 +53,7 @@ export default function App() {
       console.log('Report saved to Firebase');
     } catch (err) {
       console.error('Error generating report:', err);
+      setIsError(true); // Failed to generate report
       setError('Failed to generate report');
     }
   };
@@ -70,7 +78,17 @@ export default function App() {
       <br />
       <button onClick={generateReport}>Generate Report</button>
 
-      {error && <p className="error">{error}</p>}
+      {error && isError && (
+        <p className="error" style={{ color: 'red' }}>
+          ❌ {error}
+        </p>
+      )}
+
+      {isSuccess && !isError && (
+        <p className="success" style={{ color: 'green' }}>
+          ✅ Your report is being prepared! Check your email shortly.
+        </p>
+      )}
 
       {report && (
         <div className="report">
