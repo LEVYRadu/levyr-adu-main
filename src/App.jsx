@@ -28,7 +28,14 @@ export default function App() {
       // Determine city based on the address (or pass city manually)
       const city = 'Hamilton';  // Replace with dynamic city detection if needed
 
+      // Log the city and address before calling cityRouter
+      console.log('City:', city);
+      console.log('Address:', address);
+
       const result = await cityRouter(city, address); // Pass both city and address
+
+      // Log the result from cityRouter to check the output
+      console.log('Result from cityRouter:', result);
 
       if (result.error) {
         setIsError(true); // City is unsupported or there was an error
@@ -46,13 +53,17 @@ export default function App() {
         timestamp: new Date().toISOString(),
       };
 
+      // Log the report data to verify its structure
+      console.log('Generated report data:', reportData);
+
       setReport(reportData);
       setIsSuccess(true);  // Set success to true when report is generated
 
       // ✅ Save to Firestore using modular SDK
       await addDoc(collection(db, 'reports'), reportData);
 
-      console.log('Report saved to Firebase');
+      console.log('Report saved to Firebase');  // Log confirmation that data is saved
+
     } catch (err) {
       console.error('Error generating report:', err);
       setIsError(true); // Failed to generate report
