@@ -1,4 +1,4 @@
-// cityRouter.js
+import validateCity from '../utils/validateCity'; // Import validateCity
 import hamilton from './hamilton';
 import toronto from './toronto';
 
@@ -17,4 +17,4 @@ const cityRouter = (city) => {
   }
 };
 
-export default cityRouter; // Add this line
+export default cityRouter; // Ensure export is included
