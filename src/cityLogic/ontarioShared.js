@@ -1,5 +1,5 @@
 // Ontario-wide shared logic
-import { point, distance, area } from '@turf/turf'; // replace with needed functions
+import * as turf from '@turf/turf';
 
 // Fetch and cache the datasets once
 let greenbeltFeatures = null;
