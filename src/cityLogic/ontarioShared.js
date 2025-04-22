@@ -7,7 +7,8 @@ let soilFeatures = null;
 let elevationFeatures = null;
 
 async function fetchAndCacheGeoJSON(url) {
-  const res = await fetch(url);
+  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+  const res = await fetch(proxyUrl);
   const data = await res.json();
   return data.features;
 }
