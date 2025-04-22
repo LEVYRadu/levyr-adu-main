@@ -1,5 +1,5 @@
 // Import the city validation function
-import validateCity from './utils/validateCity';
+import validateCity from '../utils/validateCity';
 // Import the city-specific logic files
 import hamilton from './hamilton';
 import toronto from './toronto';
