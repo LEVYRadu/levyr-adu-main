@@ -1,19 +1,32 @@
 import zoningLogic from "./toronto/zoningLogic.js";
+import {
+  loadOntarioLayers,
+  isInGreenbelt,
+  getSoilType,
+  getElevation,
+} from "./ontarioShared.js";
 
-// Toronto specific ADU feasibility logic
 export default async function toronto(address) {
-  // TEMP: Hardcoded coordinates for 100 Queen St W, Toronto
+  // TEMP: Example hardcoded coordinates for Toronto
   const coordinates = {
-    lat: 43.6532,
-    lng: -79.3832,
+    lat: 43.651070,
+    lng: -79.347015,
   };
 
+  await loadOntarioLayers(); // Load Ontario-wide data
+
   const zoningResult = await zoningLogic(coordinates);
+  const greenbelt = isInGreenbelt(coordinates);
+  const soilType = getSoilType(coordinates);
+  const elevation = getElevation(coordinates);
 
   return {
     zoning: zoningResult.zoneCode,
     aduAllowed: zoningResult.isADUPermitted,
-    utilities: 'Likely Available', // Temporary placeholder
     zoningNotes: zoningResult.notes,
+    utilities: 'Likely Available', // Placeholder for now
+    soil: soilType,
+    elevation: elevation,
+    greenbeltProtected: greenbelt ? "Yes" : "No",
   };
 }
