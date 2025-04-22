@@ -15,13 +15,16 @@ async function fetchAndCacheGeoJSON(url) {
 
 export async function loadOntarioLayers() {
   if (!greenbeltFeatures) {
-    greenbeltFeatures = await fetchAndCacheGeoJSON("https://ws.lioservices.lrc.gov.on.ca/arcgis2/rest/services/LIO_OPEN_DATA/LIO_Open01/MapServer/29/query?outFields=*&where=1%3D1&f=geojson");
+    // Greenbelt Layer - use only needed fields (OBJECTID, SHAPE)
+    greenbeltFeatures = await fetchAndCacheGeoJSON("https://ws.lioservices.lrc.gov.on.ca/arcgis2/rest/services/LIO_OPEN_DATA/LIO_Open01/MapServer/29/query?outFields=OBJECTID&where=1%3D1&f=geojson");
   }
   if (!soilFeatures) {
-    soilFeatures = await fetchAndCacheGeoJSON("https://ws.lioservices.lrc.gov.on.ca/arcgis2/rest/services/LIO_OPEN_DATA/LIO_Open06/MapServer/15/query?outFields=*&where=1%3D1&f=geojson");
+    // Soil Layer - use SOIL_NAME only
+    soilFeatures = await fetchAndCacheGeoJSON("https://ws.lioservices.lrc.gov.on.ca/arcgis2/rest/services/LIO_OPEN_DATA/LIO_Open06/MapServer/15/query?outFields=SOIL_NAME&where=1%3D1&f=geojson");
   }
   if (!elevationFeatures) {
-    elevationFeatures = await fetchAndCacheGeoJSON("https://ws.lioservices.lrc.gov.on.ca/arcgis2/rest/services/LIO_OPEN_DATA/LIO_Open05/MapServer/9/query?outFields=*&where=1%3D1&f=geojson");
+    // Elevation Layer - use ELEVATION field
+    elevationFeatures = await fetchAndCacheGeoJSON("https://ws.lioservices.lrc.gov.on.ca/arcgis2/rest/services/LIO_OPEN_DATA/LIO_Open05/MapServer/9/query?outFields=ELEVATION&where=1%3D1&f=geojson");
   }
 }
 
