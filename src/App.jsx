@@ -25,15 +25,17 @@ export default function App() {
       setIsSuccess(false);
       setIsError(false);
 
-      const cityHandler = cityRouter(address);
+      // Determine city based on the address (or pass city manually)
+      const city = 'Hamilton';  // Replace with dynamic city detection if needed
 
-      if (!cityHandler) {
-        setIsError(true); // City is unsupported
-        setError('City not supported.');
+      const result = await cityRouter(city, address); // Pass both city and address
+
+      if (result.error) {
+        setIsError(true); // City is unsupported or there was an error
+        setError(result.error);
         return;
       }
 
-      const result = await cityHandler(address);
       const reportData = {
         address,
         email, // ✅ Save email to Firestore
