@@ -6,13 +6,16 @@ import toronto from './toronto';
 
 // The cityRouter function checks the city and returns the corresponding logic
 const cityRouter = (city) => {
+  // Normalize city name to proper case
+  const normalizedCity = city.charAt(0).toUpperCase() + city.slice(1).toLowerCase();
+
   // Validate if the city is supported
-  if (!validateCity(city)) {
+  if (!validateCity(normalizedCity)) {
     return { error: 'City not supported' };  // Return an error message if unsupported
   }
 
   // Return the specific city logic based on the city name
-  switch (city) {
+  switch (normalizedCity) {
     case 'Hamilton':
       return hamilton;  // Return Hamilton's logic
     case 'Toronto':
