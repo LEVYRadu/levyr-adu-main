@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { cityRouter } from './cityLogic/cityRouter';
+import cityRouter from './cityLogic/cityRouter';
 import { db } from './firebase';
 import { addDoc, collection } from 'firebase/firestore'; // ✅ Correct import
 
