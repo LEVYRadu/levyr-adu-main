@@ -1,9 +1,6 @@
+// cityRouter.js
 import hamilton from './hamilton';
 import toronto from './toronto';
-
-// Log to verify
-console.log(hamilton);
-console.log(toronto);
 
 const cityRouter = (city) => {
   if (!validateCity(city)) {
@@ -12,10 +9,12 @@ const cityRouter = (city) => {
 
   switch (city) {
     case 'Hamilton':
-      return hamilton; 
+      return hamilton;
     case 'Toronto':
       return toronto;
     default:
       return { error: 'City not supported' };
   }
 };
+
+export default cityRouter; // Add this line
