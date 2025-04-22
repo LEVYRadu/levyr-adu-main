@@ -10,7 +10,7 @@ admin.initializeApp();
 const mailgun = new Mailgun(formData);
 const mg = mailgun.client({
   username: 'api',
-  key: 'YOUR_MAILGUN_API_KEY', // 🔐 Replace with your actual Mailgun API key
+  key: '0860cf1d37b0a08527a13fdcb753e9ba-10b6f382-0803fb84', // Your Mailgun API key
 });
 
 // Firebase function to send email report
@@ -18,8 +18,8 @@ exports.sendEmailReport = functions.https.onCall(async (data, context) => {
   const { to, subject, html } = data;
 
   try {
-    const result = await mg.messages.create('YOUR_DOMAIN_NAME', {
-      from: 'LEVYR <hello@YOUR_DOMAIN_NAME>',
+    const result = await mg.messages.create('sandbox3bcc865e253047e18dcf3b0f53e86e43.mailgun.org', {
+      from: 'LEVYR <levyr.adu@protonmail.com>', // Your verified sender email
       to,
       subject,
       html,
